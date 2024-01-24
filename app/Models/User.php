@@ -12,6 +12,8 @@ namespace App\Models;
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
+use Illuminate\Notifications\Notifiable;
+use Laravel\Sanctum\HasApiTokens;
 
 
 // Authenticateは、認証機能を持ったクラス。ユーザー認証に関連するモデルのみに使用される
@@ -19,9 +21,11 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
 class User extends Authenticatable
 {
 
+    use HasApiTokens, Notifiable;
+
     public $timestamps = false;
 
-    protected $table = 'test_users';
+    protected $table = 'users';
     use HasFactory;
 
     protected $guarded = [

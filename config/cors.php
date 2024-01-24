@@ -29,6 +29,7 @@ return [
 
     'max_age' => 0,
 
-    'supports_credentials' => false,
+    // リクエストにクッキーを付与できるようにする(許可するイメージ？)
+    'supports_credentials' => true,
 
 ];
