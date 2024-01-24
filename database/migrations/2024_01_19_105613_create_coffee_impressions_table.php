@@ -13,6 +13,8 @@ return new class extends Migration
     {
         Schema::create('coffee_impressions', function (Blueprint $table) {
             $table->id();
+            $table->unsignedBigInteger('userId'); // 他テーブルのidと紐づける場合、unsignedBigIntegerを使う
+            $table->foreign('userId')->references('id')->on('users'); // Userテーブルのidカラムに紐づける
             $table->string('coffeeName');
             $table->date('purchaseDate');
             $table->integer('price');

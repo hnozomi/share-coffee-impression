@@ -19,9 +19,9 @@ use App\Http\Controllers\AuthController;
 */
 
 // sanctum使うと認証されないのでauth:apiを使用
-Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
-    return $request->user();
-});
+//Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
+//    return $request->user();
+//});
 
 Route::middleware('auth:api')->get('/user', function (Request $request) {
     return $request->user();
@@ -30,7 +30,7 @@ Route::middleware('auth:api')->get('/user', function (Request $request) {
 
 Route::post('/register', [AuthController::class, 'register']);
 Route::post('/login', [AuthController::class, 'login']);
-Route::post('/logout', [AuthController::class, 'logout'])->middleware('auth:sanctum');
+Route::post('/logout', [AuthController::class, 'logout'])->middleware('auth:api');
 
 
 //フロントからのリクエストを受けて、どのコントローラを実行するか記述している
@@ -42,6 +42,8 @@ Route::post('/logout', [AuthController::class, 'logout'])->middleware('auth:sanc
 
 // コーヒーの感想一覧を取得
 Route::get('/coffee_impression', [CoffeeImpressionController::class, 'fetchAllCoffeeImpression'])->name('fetchAllCoffeeImpression');
+// 自分が投稿したコーヒーの感想を取得
+Route::middleware('auth:api')->get('/coffee_impression/my_impression', [CoffeeImpressionController::class, 'fetchMyCoffeeImpression'])->name('fetchMyCoffeeImpression');
 // コーヒーの感想一覧を追加
 Route::post('/coffee_impression/add', [CoffeeImpressionController::class, 'addCoffeeImpressions'])->name('addCoffeeImpressions');
 // 選択されたコーヒーの感想を取得

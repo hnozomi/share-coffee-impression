@@ -56,8 +56,13 @@ public function login(Request $request)
 
 public function logout(Request $request)
 {
-$request->user()->currentAccessToken()->delete();
+    // セッションを無効化してユーザーをログアウトする
+    Auth::logout();
 
-return response()->json(['message' => 'User successfully logged out']);
+    // 再生成して古いセッションとトークンを無効にするために再生成
+    $request->session()->invalidate();
+    $request->session()->regenerateToken();
+
+    return response()->json(['message' => 'User successfully logged out']);
 }
 }

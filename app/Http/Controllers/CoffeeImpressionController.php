@@ -3,7 +3,9 @@
 namespace App\Http\Controllers;
 
 use App\Models\CoffeeImpression;
+use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
 
 class CoffeeImpressionController extends Controller
@@ -24,16 +26,28 @@ class CoffeeImpressionController extends Controller
         }
     }
 
-    public function fetchOnlyCoffeeImpression(Request $request, $id)
+    public function fetchMyCoffeeImpression(Request $request)
     {
         try {
-            Log::info($request);
-            $coffee_impression = CoffeeImpression::where('id', $id)->first();
 
-            // クエリビルだで取得
-//           $record = DB::table('your_table')->where('table_column', $value)->first();
+            $userId = Auth::id();
+            Log::info($userId);
 
-            return response()->json($coffee_impression)->header('X-Message', 'データが取得できました');;
+            $user = User::find($userId);
+            $coffee_impression = $user->coffeeImpressions()->get();
+
+            Log::info($coffee_impression);
+
+            // モデルをリレーションさせていない場合の書き方
+            // 基本的にリレーションさせた方が良さそう
+            // リレーションをした方がテーブル間の関係性がコードからわかる
+            // クエリの書き方が簡略化・開発の効率化
+
+//            $coffee_impression1 = CoffeeImpression::where('id', $userId)->get();
+//
+//            Log::info($coffee_impression1);
+
+            return response()->json($coffee_impression)->header('X-Message', 'データが取得できました');
         } catch (\Exception $e) {
             Log::error($e);
             return response()->json(['message' => 'データの取得に失敗しました'], 500);
@@ -46,6 +60,7 @@ class CoffeeImpressionController extends Controller
             Log::info($request);
 
             $validatedData = $request->validate([
+                'userId' => 'required|integer|min:1',
                 'coffeeName' => 'required|string',
                 'purchaseDate' => 'required|string',
                 'price' => 'required|integer',
@@ -59,6 +74,7 @@ class CoffeeImpressionController extends Controller
             ]);
 
             $coffee_impression = CoffeeImpression::create([
+                'userId' => $validatedData['userId'],
                 'coffeeName' => $validatedData['coffeeName'],
                 'purchaseDate' => $validatedData['purchaseDate'],
                 'price' => $validatedData['price'],
@@ -85,6 +101,7 @@ class CoffeeImpressionController extends Controller
             Log::info($request);
 
             $validatedData = $request->validate([
+                'userId' => 'required|integer|min:1',
                 'coffeeName' => 'required|string',
                 'purchaseDate' => 'required|string',
                 'price' => 'required|integer',
