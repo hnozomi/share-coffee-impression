@@ -15,9 +15,26 @@ class CoffeeImpressionController extends Controller
         try {
             Log::info($request);
             // Eloquentで取得
-            $coffee_impression = CoffeeImpression::all();
+//            $coffee_impression = CoffeeImpression::all();
+            $coffee_impressions = CoffeeImpression::with('user')->get();
             // クエリビルだで取得
 //            $impressions = DB::table('CoffeeImpressions')->get();
+
+            return response()->json($coffee_impressions)->header('X-Message', 'データが取得できました');
+        } catch (\Exception $e) {
+            Log::error($e);
+            return response()->json(['message' => 'データの取得に失敗しました'], 500);
+        }
+    }
+
+    public function fetchOnlyCoffeeImpression(Request $request, $id)
+    {
+        try {
+            Log::info($request);
+            $coffee_impression = CoffeeImpression::where('id', $id)->first();
+
+            // クエリビルだで取得
+//           $record = DB::table('your_table')->where('table_column', $value)->first();
 
             return response()->json($coffee_impression)->header('X-Message', 'データが取得できました');
         } catch (\Exception $e) {
@@ -30,13 +47,9 @@ class CoffeeImpressionController extends Controller
     {
         try {
 
-            $userId = Auth::id();
-            Log::info($userId);
-
-            $user = User::find($userId);
+            $user = Auth::user();
+            Log::info($user);
             $coffee_impression = $user->coffeeImpressions()->get();
-
-            Log::info($coffee_impression);
 
             // モデルをリレーションさせていない場合の書き方
             // 基本的にリレーションさせた方が良さそう

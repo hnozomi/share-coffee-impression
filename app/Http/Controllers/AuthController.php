@@ -24,8 +24,6 @@ $request->validate([
 'password' => 'required|string|min:6',
 ]);
 
-    Log::warning($request);
-
 $user = User::create([
 'name' => $request->name,
 'age' => $request->age,
@@ -38,26 +36,27 @@ return response()->json(['message' => 'User successfully registered', 'user' => 
 
 public function login(Request $request)
 {
-
-    Log::info("request: " . $request); // ログに記録
     $credentials = $request->validate([
-'email' => 'required|email',
-'password' => 'required',
-]);
+        'email' => 'required|email',
+        'password' => 'required',
+    ]);
 
-    if (Auth::attempt($credentials)) {
-        $request->session()->regenerate();
+    Log::debug(print_r($credentials, true));
 
-        return response()->json(Auth::user());
+    if (!Auth::attempt($credentials)) {
+        return response()->json(['message' => 'Invalid credentials'], 401);
     }
-    return response()->json([], 401);
+
+    $request->session()->regenerate();
+    return response()->json(Auth::user());
 
 }
 
 public function logout(Request $request)
 {
     // セッションを無効化してユーザーをログアウトする
-    Auth::logout();
+//    Auth::logout();
+    $request->session()->invalidate();
 
     // 再生成して古いセッションとトークンを無効にするために再生成
     $request->session()->invalidate();
