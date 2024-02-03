@@ -10,15 +10,10 @@ use Illuminate\Support\Facades\Log;
 
 class CoffeeImpressionController extends Controller
 {
-    public function fetchAllCoffeeImpression(Request $request)
+    public function fetchAllCoffeeImpression(Request $request, CoffeeImpression $coffeeImpression)
     {
         try {
-            Log::info($request);
-            // Eloquentで取得
-//            $coffee_impression = CoffeeImpression::all();
-            $coffee_impressions = CoffeeImpression::with('user')->get();
-            // クエリビルだで取得
-//            $impressions = DB::table('CoffeeImpressions')->get();
+            $coffee_impressions = $coffeeImpression->fetchAllCoffeeImpression();
 
             return response()->json($coffee_impressions)->header('X-Message', 'データが取得できました');
         } catch (\Exception $e) {
@@ -27,15 +22,10 @@ class CoffeeImpressionController extends Controller
         }
     }
 
-    public function fetchOnlyCoffeeImpression(Request $request, $id)
+    public function fetchOnlyCoffeeImpression(Request $request, $id, CoffeeImpression $coffeeImpression)
     {
         try {
-            Log::info($request);
-//            $coffee_impression = CoffeeImpression::with('comments')->where('id', $id)->first();
-            $coffee_impression = CoffeeImpression::with('comments.replies')->find($id);
-
-            // クエリビルだで取得
-//           $record = DB::table('your_table')->where('table_column', $value)->first();
+            $coffee_impression = $coffeeImpression->fetchOnlyCoffeeImpression($id);
 
             return response()->json($coffee_impression)->header('X-Message', 'データが取得できました');
         } catch (\Exception $e) {
@@ -49,17 +39,14 @@ class CoffeeImpressionController extends Controller
         try {
 
             $user = Auth::user();
-            Log::info($user);
             $coffee_impression = $user->coffeeImpressions()->get();
 
             // モデルをリレーションさせていない場合の書き方
             // 基本的にリレーションさせた方が良さそう
             // リレーションをした方がテーブル間の関係性がコードからわかる
             // クエリの書き方が簡略化・開発の効率化
+            // $coffee_impression1 = CoffeeImpression::where('id', $userId)->get();
 
-//            $coffee_impression1 = CoffeeImpression::where('id', $userId)->get();
-//
-//            Log::info($coffee_impression1);
 
             return response()->json($coffee_impression)->header('X-Message', 'データが取得できました');
         } catch (\Exception $e) {
@@ -68,11 +55,9 @@ class CoffeeImpressionController extends Controller
         }
     }
 
-    public function addCoffeeImpressions(Request $request)
+    public function addCoffeeImpressions(Request $request, CoffeeImpression $coffeeImpression)
     {
         try {
-            Log::info($request);
-
             $validatedData = $request->validate([
                 'userId' => 'required|integer|min:1',
                 'coffeeName' => 'required|string',
@@ -87,19 +72,7 @@ class CoffeeImpressionController extends Controller
                 'taste' => 'required|integer',
             ]);
 
-            $coffee_impression = CoffeeImpression::create([
-                'userId' => $validatedData['userId'],
-                'coffeeName' => $validatedData['coffeeName'],
-                'purchaseDate' => $validatedData['purchaseDate'],
-                'price' => $validatedData['price'],
-                'place' => $validatedData['place'],
-                'rate' => $validatedData['rate'],
-                'scent' => $validatedData['scent'],
-                'acidity' => $validatedData['acidity'],
-                'bitter' => $validatedData['bitter'],
-                'rich' => $validatedData['rich'],
-                'taste' => $validatedData['taste'],
-            ]);
+            $coffee_impression = $coffeeImpression->addCoffeeImpressions($validatedData);
 
             // 応答を返す
             return response()->json($coffee_impression)->header('X-Message', 'データの登録が完了しました');
@@ -109,10 +82,9 @@ class CoffeeImpressionController extends Controller
         }
     }
 
-    public function updateCoffeeImpression(Request $request, $id)
+    public function updateCoffeeImpression(Request $request, $id, CoffeeImpression $coffeeImpression)
     {
         try {
-            Log::info($request);
 
             $validatedData = $request->validate([
                 'userId' => 'required|integer|min:1',
@@ -128,24 +100,7 @@ class CoffeeImpressionController extends Controller
                 'taste' => 'required|integer',
             ]);
 
-            // IDに基づいてレコードを検索
-            $resource = CoffeeImpression::findOrFail($id);
-
-            $resource->update($validatedData);
-
-//            $coffee_impression = CoffeeImpression::update([
-//                'coffeeName' => $validatedData['coffeeName'],
-//                'purchaseDate' => $validatedData['purchaseDate'],
-//                'price' => $validatedData['price'],
-//                'place' => $validatedData['place'],
-//                'rate' => $validatedData['rate'],
-//                'scent' => $validatedData['scent'],
-//                'acidity' => $validatedData['acidity'],
-//                'bitter' => $validatedData['bitter'],
-//                'rich' => $validatedData['rich'],
-//                'taste' => $validatedData['taste'],
-//                // 他のフィールドがある場合はここに追加
-//            ]);
+            $resource = $coffeeImpression->updateCoffeeImpression($id, $validatedData);
 
             // 応答を返す
             return response()->json($resource)->header('X-Message', 'データの更新が完了しました');
@@ -155,31 +110,11 @@ class CoffeeImpressionController extends Controller
         }
     }
 
-    public function deleteCoffeeImpression(Request $request, $id)
+    public function deleteCoffeeImpression(Request $request, $id, CoffeeImpression $coffeeImpression)
     {
         try {
-            Log::info($request);
+            $resource = $coffeeImpression->deleteCoffeeImpression($id, $coffeeImpression);
 
-            // IDに基づいてレコードを検索
-            $resource = CoffeeImpression::findOrFail($id);
-
-            $resource->delete();
-
-//            $coffee_impression = CoffeeImpression::delete([
-//                'coffeeName' => $validatedData['coffeeName'],
-//                'purchaseDate' => $validatedData['purchaseDate'],
-//                'price' => $validatedData['price'],
-//                'place' => $validatedData['place'],
-//                'rate' => $validatedData['rate'],
-//                'scent' => $validatedData['scent'],
-//                'acidity' => $validatedData['acidity'],
-//                'bitter' => $validatedData['bitter'],
-//                'rich' => $validatedData['rich'],
-//                'taste' => $validatedData['taste'],
-//                // 他のフィールドがある場合はここに追加
-//            ]);
-
-            // 応答を返す
             return response()->json($resource)->header('X-Message', 'データの削除が完了しました');
         } catch (\Exception $e) {
             Log::error($e);
