@@ -31,7 +31,8 @@ class CoffeeImpressionController extends Controller
     {
         try {
             Log::info($request);
-            $coffee_impression = CoffeeImpression::where('id', $id)->first();
+//            $coffee_impression = CoffeeImpression::with('comments')->where('id', $id)->first();
+            $coffee_impression = CoffeeImpression::with('comments.replies')->find($id);
 
             // クエリビルだで取得
 //           $record = DB::table('your_table')->where('table_column', $value)->first();

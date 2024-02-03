@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\CoffeeImpressionController;
+use App\Http\Controllers\CommentController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Route;
@@ -41,7 +42,7 @@ Route::post('/logout', [AuthController::class, 'logout'])->middleware('auth:sanc
 //Route::post('/auth/login', [UserController::class, 'login'])->name('login');
 
 // コーヒーの感想一覧を取得
-Route::get('/coffee_impression', [CoffeeImpressionController::class, 'fetchAllCoffeeImpression'])->name('fetchAllCoffeeImpression');
+Route::middleware('auth:sanctum')->get('/coffee_impression', [CoffeeImpressionController::class, 'fetchAllCoffeeImpression'])->name('fetchAllCoffeeImpression');
 // 自分が投稿したコーヒーの感想を取得
 Route::middleware('auth:sanctum')->get('/coffee_impression/my_impression', [CoffeeImpressionController::class, 'fetchMyCoffeeImpression'])->name('fetchMyCoffeeImpression');
 // コーヒーの感想一覧を追加
@@ -53,3 +54,6 @@ Route::put('/coffee_impression/update/{coffee_impression_id}', [CoffeeImpression
 // コーヒーの感想を削除
 Route::delete('/coffee_impression/delete/{coffee_impression_id}', [CoffeeImpressionController::class, 'deleteCoffeeImpression'])->name('deleteCoffeeImpression');
 
+
+// コメントを追加
+Route::post('/comment/add', [CommentController::class, 'addComment'])->name('addComment');
